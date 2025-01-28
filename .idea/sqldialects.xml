@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/src/db/migration/1_create_table_author.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/src/db/migration/2_create_table_book.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/src/db/testdata/1_insert_testdata_author.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/src/db/testdata/2_insert_testdata_book.sql" dialect="PostgreSQL" />
-  </component>
-</project>
