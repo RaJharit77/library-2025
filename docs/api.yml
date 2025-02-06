@@ -18,20 +18,7 @@ paths:
           required: false
           schema:
             type: string
-        - in: query
-          name: startDate
-          description: Filter books by release date starting from this date (inclusive)
-          required: false
-          schema:
-            type: string
-            format: date
-        - in: query
-          name: endDate
-          description: Filter books by release date up to this date (inclusive)
-          required: false
-          schema:
-            type: string
-            format: date
+        #TODO3: add parameter to filter books by intervals of dates of the releaseDate
       responses:
         200:
           description: The list of filtered books
@@ -61,58 +48,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Book'
   /authors:
-    get:
-      summary: Get all authors
-      description: The returned authors can be filtered by name.
-      operationId: getAuthors
-      parameters:
-        - in: query
-          name: name
-          description: Filter authors by given name
-          required: false
-          schema:
-            type: string
-      responses:
-        200:
-          description: The list of filtered authors
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Author'
-    put:
-      summary: Create or update a list of authors
-      operationId: updateAuthors
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/Author'
-      responses:
-        200:
-          description: The list of created or updated authors
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Author'
-    delete:
-      summary: Delete authors by IDs
-      operationId: deleteAuthors
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: string
-      responses:
-        200:
-          description: Authors deleted successfully
+  #TODO2: complete GET (can be filtered by name) - PUT - DELETE
 components:
   schemas:
     Book:
@@ -123,7 +59,8 @@ components:
         bookName:
           type: string
         author:
-          $ref: '#/components/schemas/Author'
+          #TODO1: set it as a component with properties : id, name, sex (M or F)
+          type: string
         pageNumbers:
           type: integer
         topic:
@@ -135,15 +72,3 @@ components:
         releaseDate:
           type: string
           format: date
-    Author:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        sex:
-          type: string
-          enum:
-            - M
-            - F
