@@ -17,5 +17,4 @@ public class Criteria {
         this.column = column;
         this.value = value;
     }
-
 }

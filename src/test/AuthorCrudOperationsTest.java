@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.UUID.randomUUID;
@@ -44,7 +45,7 @@ class AuthorCrudOperationsTest {
         var actual = subject.saveAll(List.of(authors));
         //TODO: update created authors with saveAll when saveAll handle update
 
-        var existingAuthors = subject.getAll(1, 3);
+        var existingAuthors = subject.getAll(1, 3, "name");
         assertEquals(List.of(authors), actual);
         assertTrue(existingAuthors.containsAll(actual));
     }
@@ -77,11 +78,23 @@ class AuthorCrudOperationsTest {
     // Once test passed, set UnitTest corresponding
     @Test
     void read_authors_order_by_name_or_birthday_or_both() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            throw new UnsupportedOperationException("Not implemented yet");
-        });
+        List<Author> authorsOrderedByName = subject.getAll(1, 3, "name");
+        List<Author> authorsOrderedByBirthDate = subject.getAll(1, 3, "birth_date");
+        List<Author> authorsOrderedByNameAndBirthDate = subject.getAll(1, 3, "name, birth_date");
+
+        assertTrue(isSorted(authorsOrderedByName, Comparator.comparing(Author::getName)));
+        assertTrue(isSorted(authorsOrderedByBirthDate, Comparator.comparing(Author::getBirthDate)));
+        assertTrue(isSorted(authorsOrderedByNameAndBirthDate, Comparator.comparing(Author::getName).thenComparing(Author::getBirthDate)));
     }
 
+    private boolean isSorted(List<Author> authors, Comparator<Author> comparator) {
+        for (int i = 0; i < authors.size() - 1; i++) {
+            if (comparator.compare(authors.get(i), authors.get(i + 1)) > 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private Author authorJJR() {
         Author expectedAuthor = new Author();
