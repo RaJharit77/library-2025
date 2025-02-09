@@ -23,7 +23,7 @@ class AuthorCrudOperationsTest {
         Author expectedAuthor = authorJJR();
 
         // Subject and the function to test
-        List<Author> actual = subject.getAll(1, 3);
+        List<Author> actual = subject.getAll(1, 3, "name");
 
         // Assertions : verification to be made automatically
         assertTrue(actual.contains(expectedAuthor));
