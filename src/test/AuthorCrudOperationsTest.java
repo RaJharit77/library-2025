@@ -40,14 +40,21 @@ class AuthorCrudOperationsTest {
 
     @Test
     void create_then_update_author_ok() {
-        var authors = newAuthor(randomUUID().toString(), "Random famous author", LocalDate.of(2000, 1, 1));
+        var newAuthor = newAuthor(randomUUID().toString(), "Random famous author", LocalDate.of(2000, 1, 1));
+        var savedAuthors = subject.saveAll(List.of(newAuthor));
 
-        var actual = subject.saveAll(List.of(authors));
-        //TODO: update created authors with saveAll when saveAll handle update
+        assertEquals(1, savedAuthors.size());
+        assertEquals(newAuthor, savedAuthors.get(0));
+
+        newAuthor.setName("Updated famous author");
+        newAuthor.setBirthDate(LocalDate.of(1990, 1, 1));
+        var updatedAuthors = subject.saveAll(List.of(newAuthor));
+
+        assertEquals(1, updatedAuthors.size());
+        assertEquals(newAuthor, updatedAuthors.get(0));
 
         var existingAuthors = subject.getAll(1, 3, "name");
-        assertEquals(List.of(authors), actual);
-        assertTrue(existingAuthors.containsAll(actual));
+        assertTrue(existingAuthors.containsAll(updatedAuthors));
     }
 
     // TODO : make the changes inside the CrudOperations and its implementation to handle this

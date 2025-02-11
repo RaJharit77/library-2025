@@ -68,18 +68,20 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
 
     @Override
     public Author findById(String id) {
-        String sql = "select a.id, a.name, a.birth_date, a.sex from author a where id = ?";
+        String sql = "select a.id, a.name, a.birth_date from author a where id = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
-                Author author = new Author();
-                while (resultSet.next()) {
+                if (resultSet.next()) {
+                    Author author = new Author();
                     author.setId(resultSet.getString("id"));
                     author.setName(resultSet.getString("name"));
                     author.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+                    return author;
+                } else {
+                    return null;
                 }
-                return author;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

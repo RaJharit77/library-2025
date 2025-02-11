@@ -19,7 +19,7 @@ public class LibraryApplication {
 
         // Check author getAll() works
         AuthorCrudOperations authorCrudOperations = new AuthorCrudOperations();
-        List<Author> authors = authorCrudOperations.getAll(1, 30);
+        List<Author> authors = authorCrudOperations.getAll(1, 30, "name");
         logger.info(authors.toString());
     }
 }
