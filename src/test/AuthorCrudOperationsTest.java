@@ -94,6 +94,30 @@ class AuthorCrudOperationsTest {
         assertTrue(isSorted(authorsOrderedByNameAndBirthDate, Comparator.comparing(Author::getName).thenComparing(Author::getBirthDate)));
     }
 
+    @Test
+    void read_filtered_ordered_and_paginated() {
+        List<Criteria> criteria = new ArrayList<>();
+        criteria.add(new Criteria("name", "rado"));
+        criteria.add(new Criteria("birth_date", LocalDate.of(2000, 1, 1)));
+
+        int page = 1;
+        int pageSize = 2;
+        String orderBy = "name";
+
+        List<Author> expectedAuthors = List.of(
+                authorJJR(),
+                authorRado()
+        );
+
+        List<Author> actualAuthors = subject.findByCriteria(criteria, page, pageSize, orderBy);
+
+        assertEquals(expectedAuthors.size(), actualAuthors.size());
+        assertTrue(actualAuthors.stream()
+                .allMatch(author -> author.getName().toLowerCase().contains("rado")
+                        || author.getBirthDate().equals(LocalDate.of(2000, 1, 1))));
+        assertTrue(isSorted(actualAuthors, Comparator.comparing(Author::getName)));
+    }
+
     private boolean isSorted(List<Author> authors, Comparator<Author> comparator) {
         for (int i = 0; i < authors.size() - 1; i++) {
             if (comparator.compare(authors.get(i), authors.get(i + 1)) > 0) {
