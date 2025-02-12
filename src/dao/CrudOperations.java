@@ -5,7 +5,7 @@ import java.util.List;
 public interface CrudOperations<E> {
     List<E> getAll(int page, int size, String orderBy);
 
-    List<E> findByCriteria(List<Criteria> criteria);
+    List<E> findByCriteria(List<Criteria> criteria, int page, int pageSize, String orderBy);
 
     E findById(String id);
 

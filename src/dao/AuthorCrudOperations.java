@@ -34,6 +34,36 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
         }
     }
 
+    @Override
+    public List<Author> findByCriteria(List<Criteria> criteria, int page, int pageSize, String orderBy) {
+        if (page < 1) {
+            throw new IllegalArgumentException("page must be greater than 0 but actual is " + page);
+        }
+        List<Author> authors = new ArrayList<>();
+        String sql = "SELECT a.id, a.name, a.birth_date FROM author a WHERE 1=1";
+        for (Criteria c : criteria) {
+            if ("name".equals(c.getColumn())) {
+                sql += " AND a." + c.getColumn() + " ILIKE '%" + c.getValue().toString() + "%'";
+            } else if ("birth_date".equals(c.getColumn())) {
+                sql += " OR a." + c.getColumn() + " = '" + c.getValue().toString() + "'";
+            }
+        }
+        if (orderBy != null && !orderBy.isEmpty()) {
+            sql += " ORDER BY " + orderBy;
+        }
+        sql += " LIMIT ? OFFSET ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, pageSize);
+            preparedStatement.setInt(2, pageSize * (page - 1));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return mapAuthorFromResultSet(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private List<Author> mapAuthorFromResultSet(ResultSet resultSet) throws SQLException {
         List<Author> authors = new ArrayList<>();
         while (resultSet.next()) {
@@ -47,41 +77,19 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
     }
 
     @Override
-    public List<Author> findByCriteria(List<Criteria> criteria) {
-        List<Author> authors = new ArrayList<>();
-        String sql = "select a.id, a.name, a.birth_date from author a where 1=1";
-        for (Criteria c : criteria) {
-            if ("name".equals(c.getColumn())) {
-                sql += " and a." + c.getColumn() + " ilike '%" + c.getValue().toString() + "%'";
-            } else if ("birth_date".equals(c.getColumn())) {
-                sql += " or a." + c.getColumn() + " = '" + c.getValue().toString() + "'";
-            }
-        }
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
-            return mapAuthorFromResultSet(resultSet);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public Author findById(String id) {
-        String sql = "select a.id, a.name, a.birth_date from author a where id = ?";
+        String sql = "SELECT a.id, a.name, a.birth_date FROM author a WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    Author author = new Author();
+                Author author = new Author();
+                while (resultSet.next()) {
                     author.setId(resultSet.getString("id"));
                     author.setName(resultSet.getString("name"));
                     author.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
-                    return author;
-                } else {
-                    return null;
                 }
+                return author;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -96,7 +104,7 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
                 Author existingAuthor = findById(entityToSave.getId());
                 if (existingAuthor != null) {
                     try (PreparedStatement statement = connection.prepareStatement(
-                            "update author set name = ?, birth_date = ? where id = ?")) {
+                            "UPDATE author SET name = ?, birth_date = ? WHERE id = ?")) {
                         statement.setString(1, entityToSave.getName());
                         statement.setDate(2, Date.valueOf(entityToSave.getBirthDate()));
                         statement.setString(3, entityToSave.getId());
@@ -104,7 +112,7 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
                     }
                 } else {
                     try (PreparedStatement statement = connection.prepareStatement(
-                            "insert into author (id, name, birth_date) values (?, ?, ?)")) {
+                            "INSERT INTO author (id, name, birth_date) VALUES (?, ?, ?)")) {
                         statement.setString(1, entityToSave.getId());
                         statement.setString(2, entityToSave.getName());
                         statement.setDate(3, Date.valueOf(entityToSave.getBirthDate()));

@@ -68,7 +68,7 @@ class AuthorCrudOperationsTest {
                 authorJJR(),
                 authorRado());
 
-        List<Author> actual = subject.findByCriteria(criteria);
+        List<Author> actual = subject.findByCriteria(criteria, 1, 2, "name");
 
         assertEquals(expected, actual);
         assertTrue(actual.stream()
@@ -96,26 +96,17 @@ class AuthorCrudOperationsTest {
 
     @Test
     void read_filtered_ordered_and_paginated() {
-        List<Criteria> criteria = new ArrayList<>();
+        ArrayList<Criteria> criteria = new ArrayList<>();
         criteria.add(new Criteria("name", "rado"));
         criteria.add(new Criteria("birth_date", LocalDate.of(2000, 1, 1)));
 
-        int page = 1;
-        int pageSize = 2;
-        String orderBy = "name";
+        List<Author> actual = subject.findByCriteria(criteria, 1, 2, "name");
 
-        List<Author> expectedAuthors = List.of(
-                authorJJR(),
-                authorRado()
-        );
-
-        List<Author> actualAuthors = subject.findByCriteria(criteria, page, pageSize, orderBy);
-
-        assertEquals(expectedAuthors.size(), actualAuthors.size());
-        assertTrue(actualAuthors.stream()
+        assertEquals(2, actual.size());
+        assertTrue(actual.stream()
                 .allMatch(author -> author.getName().toLowerCase().contains("rado")
                         || author.getBirthDate().equals(LocalDate.of(2000, 1, 1))));
-        assertTrue(isSorted(actualAuthors, Comparator.comparing(Author::getName)));
+        assertTrue(isSorted(actual, Comparator.comparing(Author::getName)));
     }
 
     private boolean isSorted(List<Author> authors, Comparator<Author> comparator) {
